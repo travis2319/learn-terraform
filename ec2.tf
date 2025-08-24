@@ -76,6 +76,6 @@ resource "aws_instance" "my_instance" {
     volume_type = "gp3"
   }
   tags = {
-    name= "terraform-ec2-automate"
+    Name = "Terraform-EC2"
   }
 }
