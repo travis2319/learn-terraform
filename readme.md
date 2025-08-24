@@ -70,5 +70,3 @@ This will create:
 ---
 
 ✅ That’s it! This repo will spin up an EC2 instance on AWS using Terraform.
-
-```
