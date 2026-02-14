@@ -26,8 +26,8 @@ override.tf.json
 .terraform.lock.hcl
 
 # ---- SSH Keys ----
-ec2-terraform-key
-ec2-terraform-key.pub
+terraform-ec2-key
+terraform-ec2-key.pub
 *.pem
 *.key
 
