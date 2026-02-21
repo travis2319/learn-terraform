@@ -81,36 +81,33 @@ resource "aws_route_table_association" "private_subnet_assoc" {
   route_table_id = aws_route_table.private_rt.id
 }
 
+# Elastic IP for NAT Gateway
+resource "aws_eip" "nat_eip" {
+  domain = "vpc"
 
-# NAT GATEWAY (COMMENTED OUT)
+  tags = {
+    Name = "nat-eip"
+  }
+}
 
-# # Elastic IP for NAT Gateway
-# resource "aws_eip" "nat_eip" {
-#   domain = "vpc"
-#
-#   tags = {
-#     Name = "nat-eip"
-#   }
-# }
+# NAT Gateway (must be in public subnet)
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_subnet.id
 
-# # NAT Gateway (must be in public subnet)
-# resource "aws_nat_gateway" "nat" {
-#   allocation_id = aws_eip.nat_eip.id
-#   subnet_id     = aws_subnet.public_subnet.id
-#
-#   tags = {
-#     Name = "my-nat-gateway"
-#   }
-#
-#   depends_on = [aws_internet_gateway.igw]
-# }
+  tags = {
+    Name = "my-nat-gateway"
+  }
 
-# # Private Route Table Route to NAT Gateway
-# resource "aws_route" "private_nat_route" {
-#   route_table_id         = aws_route_table.private_rt.id
-#   destination_cidr_block = "0.0.0.0/0"
-#   nat_gateway_id         = aws_nat_gateway.nat.id
-# }
+  depends_on = [aws_internet_gateway.igw]
+}
+
+# Private Route Table Route to NAT Gateway
+resource "aws_route" "private_nat_route" {
+  route_table_id         = aws_route_table.private_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat.id
+}
 
 # Default Security Group
 resource "aws_default_security_group" "default-sg" {
@@ -124,7 +121,7 @@ resource "aws_default_security_group" "default-sg" {
 # PUBLIC SECURITY GROUP
 resource "aws_security_group" "public_sg" {
   name        = "public-sg"
-  description = "security groups for public subnet"
+  description = "Security group for public subnet"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -132,7 +129,7 @@ resource "aws_security_group" "public_sg" {
   }
 }
 
-# INGRESS RULES
+# INGRESS RULES - Public
 resource "aws_vpc_security_group_ingress_rule" "ssh_ingress" {
   security_group_id = aws_security_group.public_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -160,7 +157,7 @@ resource "aws_vpc_security_group_ingress_rule" "https_ingress" {
   description       = "Allow HTTPS"
 }
 
-# EGRESS RULES
+# EGRESS RULES - Public
 resource "aws_vpc_security_group_egress_rule" "public_all_outbound" {
   security_group_id = aws_security_group.public_sg.id
   cidr_ipv4         = "0.0.0.0/0"
@@ -168,7 +165,36 @@ resource "aws_vpc_security_group_egress_rule" "public_all_outbound" {
   description       = "Allow all outbound traffic"
 }
 
-# EC2 INSTANCE
+# PRIVATE SECURITY GROUP
+resource "aws_security_group" "private_sg" {
+  name        = "private-sg"
+  description = "Security group for private subnet"
+  vpc_id      = aws_vpc.main.id
+
+  tags = {
+    Name = "private-sg"
+  }
+}
+
+# INGRESS RULES - Private (SSH only from public security group i.e. bastion)
+resource "aws_vpc_security_group_ingress_rule" "private_ssh_ingress" {
+  security_group_id            = aws_security_group.private_sg.id
+  referenced_security_group_id = aws_security_group.public_sg.id
+  from_port                    = 22
+  to_port                      = 22
+  ip_protocol                  = "tcp"
+  description                  = "Allow SSH from bastion (public SG)"
+}
+
+# EGRESS RULES - Private
+resource "aws_vpc_security_group_egress_rule" "private_all_outbound" {
+  security_group_id = aws_security_group.private_sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "-1"
+  description       = "Allow all outbound traffic via NAT"
+}
+
+# PUBLIC EC2 INSTANCE (Bastion)
 resource "aws_instance" "my_instance" {
   key_name               = aws_key_pair.my_key.key_name
   vpc_security_group_ids = [aws_security_group.public_sg.id]
@@ -182,6 +208,24 @@ resource "aws_instance" "my_instance" {
   }
 
   tags = {
-    Name = "Terraform-EC2"
+    Name = "Terraform-EC2-Public"
+  }
+}
+
+# PRIVATE EC2 INSTANCE
+resource "aws_instance" "private_instance" {
+  key_name               = aws_key_pair.my_key.key_name
+  vpc_security_group_ids = [aws_security_group.private_sg.id]
+  subnet_id              = aws_subnet.private_subnet.id
+  instance_type          = var.instance_type
+  ami                    = var.ami_id
+
+  root_block_device {
+    volume_size = var.root_volume_size
+    volume_type = var.root_volume_type
+  }
+
+  tags = {
+    Name = "Terraform-EC2-Private"
   }
 }
