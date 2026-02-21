@@ -1,12 +1,12 @@
 # Key Pair (login)
 resource "aws_key_pair" "my_key" {
-  key_name   = "ec2-terraform-key"
-  public_key = file("terraform-ec2-key.pub")
+  key_name   = var.key_name
+  public_key = file(var.public_key_path)
 }
 
 # VPC 
 resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/16"
+  cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
 
   tags = {
@@ -17,9 +17,9 @@ resource "aws_vpc" "main" {
 # Public Subnet
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = var.public_subnet_cidr
   map_public_ip_on_launch = true
-  availability_zone       = "us-east-1a"
+  availability_zone       = var.availability_zone
 
   tags = {
     Name = "public-subnet"
@@ -29,8 +29,8 @@ resource "aws_subnet" "public_subnet" {
 # Private Subnet
 resource "aws_subnet" "private_subnet" {
   vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1a"
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = var.availability_zone
 
   tags = {
     Name = "private-subnet"
@@ -173,12 +173,12 @@ resource "aws_instance" "my_instance" {
   key_name               = aws_key_pair.my_key.key_name
   vpc_security_group_ids = [aws_security_group.public_sg.id]
   subnet_id              = aws_subnet.public_subnet.id
-  instance_type          = "t2.micro"
-  ami                    = "ami-0b6c6ebed2801a5cb" # Ubuntu 24.04 LTS
+  instance_type          = var.instance_type
+  ami                    = var.ami_id
 
   root_block_device {
-    volume_size = 12
-    volume_type = "gp3"
+    volume_size = var.root_volume_size
+    volume_type = var.root_volume_type
   }
 
   tags = {
