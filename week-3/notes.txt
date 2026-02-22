@@ -1,0 +1,31 @@
+learned about outputs variables meta arguments, 
+state management
+cons:
+ 1. cannot put .tfstate file in github due to security
+ 2. state confict between multiple users working simultaenlously
+solution
+ - lock & release mechanisms
+ will use s3 + dynamo tables for remote backend
+
+muti envirnmental infra
+
+outputs "vpc_id" {
+    description = "ID OF THE VPC"
+    value       = aws_vpc.main.id
+}
+
+outputs "public_subnet" {
+    description = "ID of the public subnet"
+    value       = aws_subnet.public_subnet.id
+}
+
+variables "aws_region" {
+    description = "aws region to deploy resources"
+    type        = string
+    default     = "us-east-2"
+}
+
+meta arguments
+
+depends_on
+for_each
