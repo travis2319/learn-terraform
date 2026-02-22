@@ -174,12 +174,3 @@ Travis Fernandes
 
 DevOps Engineer | Terraform | AWS | Docker | Linux
 
----
-
-## ⭐ Future Improvements
-
-* Add NAT Gateway
-* Add Private EC2 instance
-* Add Load Balancer
-* Add Auto Scaling
-* Convert into production-ready 3-tier architecture
