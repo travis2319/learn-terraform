@@ -1,0 +1,9 @@
+we will do multi env infra provisioning and use cicd using github actions
+
+- github 
+- github actions 
+- oidc
+- multi env {dev,staging,prod}
+- remote backend
+- use modules
+- use workspaces
