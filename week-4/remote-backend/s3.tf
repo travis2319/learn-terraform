@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "my_s3_bucket" {
-  bucket = "remote-backend-tf-bucket-232719" # make unique
+  bucket = "remote-backend-tf-bucket-456789" # make unique
   force_destroy = true
 
   tags = {

@@ -19,12 +19,12 @@ crash.*.log
 # Terraform plan output
 *.plan
 *.out
+*.tfplan
 
 # Sensitive variable files
 *.tfvars
 *.tfvars.json
-terraform.tfvars
-terraform.tfvars.json
+!**/env/*.tfvars
 
 # Override files (local only)
 override.tf
@@ -33,21 +33,51 @@ override.tf.json
 *_override.tf.json
 
 # Terraform lock file
-# Commit this in team projects for version consistency.
-# Ignore only if working solo.
-.terraform.lock.hcl
+# Uncomment below if working solo; keep commented for team projects
+# .terraform.lock.hcl
 
 
 # ==============================
-# SSH / Keys (VERY IMPORTANT)
+# Terragrunt
+# ==============================
+
+# Terragrunt cache
+**/.terragrunt-cache/*
+.terragrunt-cache/
+
+# Terragrunt plan output
+*.tgplan
+
+# Terragrunt generated provider files
+**/.terragrunt-source-manifest
+
+
+# ==============================
+# SSH Keys / Secrets (CRITICAL)
 # ==============================
 
 *.pem
 *.key
+*.ppk
+
+# Generic key patterns
 id_rsa
 id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# Project-specific keys (matches your structure)
 terraform-ec2-key
 terraform-ec2-key.pub
+terraform-key-dev
+terraform-key-dev.pub
+terraform-key-prod
+terraform-key-prod.pub
+terraform-key-staging
+terraform-key-staging.pub
+
+# Catch-all for any keys directory
+**/keys/*
 
 
 # ==============================
@@ -55,14 +85,23 @@ terraform-ec2-key.pub
 # ==============================
 
 *.log
+logs/
+*.log.*
 
 
 # ==============================
 # OS / Editor
 # ==============================
 
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # VS Code
 .vscode/
@@ -72,3 +111,5 @@ Thumbs.db
 
 # Vim
 *.swp
+*.swo
+*~

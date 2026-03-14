@@ -7,3 +7,24 @@ we will do multi env infra provisioning and use cicd using github actions
 - remote backend
 - use modules
 - use workspaces
+
+
+
+vpc
+ - private subnet
+ - public subnet
+ - nat gateway
+ - vpn gateway
+
+ec2
+  - instance type
+  - ami
+  - key pair
+  - security group
+
+rds
+  - instance type
+  - engine
+  - username
+  - password
+  - security group
