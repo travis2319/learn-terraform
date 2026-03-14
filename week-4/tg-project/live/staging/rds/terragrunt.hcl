@@ -28,20 +28,20 @@ dependency "ec2" {
 }
 
 inputs = {
-  name                       = "prod"
+  name                       = "staging"
   vpc_id                     = dependency.vpc.outputs.vpc_id
   ec2_sg_id                  = dependency.ec2.outputs.ec2_sg_id
   database_subnet_group_name = dependency.vpc.outputs.database_subnet_group_name
 
-  rds_identifier              = "prod-mysql"
+  rds_identifier              = "staging-mysql"
   rds_engine                  = "mysql"
   rds_engine_version          = "8.0"
   rds_family                  = "mysql8.0"
   rds_instance_class          = "db.t3.medium"
-  rds_db_name                 = "proddb"
+  rds_db_name                 = "stagingdb"
   rds_username                = "admin"
-  rds_password                = "prodPassword123!"
-  rds_allocated_storage       = 35
+  rds_password                = "stagingPassword123!"
+  rds_allocated_storage       = 30
   rds_multi_az                = true
   rds_deletion_protection     = false
   rds_skip_final_snapshot     = true
